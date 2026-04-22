@@ -63,10 +63,21 @@ with col1:
     valid_delivery['delivery_bin'] = pd.cut(valid_delivery['delivery_time'], bins=bins)
     delivery_review = valid_delivery.groupby('delivery_bin', observed=True)['review_score'].mean().reset_index()
     
+    # PERBAIKAN: Ubah kategori bin menjadi string agar bar tidak tipis/gepeng
+    delivery_review['delivery_bin'] = delivery_review['delivery_bin'].astype(str)
+    
     fig1, ax1 = plt.subplots(figsize=(10, 5))
     colors = ["#72BCD4" if x >= 4 else "#D3D3D3" for x in delivery_review['review_score']]
     
-    sns.barplot(data=delivery_review, x='delivery_bin', y='review_score', palette=colors, hue='delivery_bin', legend=False, ax=ax1)
+    sns.barplot(
+        data=delivery_review, 
+        x='delivery_bin', 
+        y='review_score', 
+        palette=colors, 
+        hue='delivery_bin', 
+        legend=False, 
+        ax=ax1
+    )
     ax1.axhline(y=4, color='red', linestyle='--', alpha=0.6)
     ax1.set_ylabel("Rata-rata Skor Review")
     ax1.set_xlabel("Rentang Hari Pengiriman")
@@ -87,7 +98,7 @@ with col2:
 # TOP PRODUK PER STATE
 st.subheader("2. Kontribusi Pendapatan per Wilayah")
 top_states_full = main_df['customer_state_full'].value_counts().head(5).index
-selected_state_full = st.selectbox("Pilih Negara Bagian (Nama Lengkap):", top_states_full)
+selected_state_full = st.selectbox("Pilih Negara Bagian:", top_states_full)
 
 state_data = main_df[main_df['customer_state_full'] == selected_state_full]
 top_category = state_data.groupby('product_category_name')['price'].sum().sort_values(ascending=False).head(5).reset_index()
